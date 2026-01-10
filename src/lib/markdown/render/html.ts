@@ -69,6 +69,7 @@ function createProcessor({ enableFootnoteLinks, openLinksInNewWindow, platform =
       allowDangerousHtml: true,
       footnoteLabel: '脚注',
       footnoteBackLabel: '返回正文',
+      footnoteLabelTagName: 'h4',
     })
 
   if (openLinksInNewWindow) {

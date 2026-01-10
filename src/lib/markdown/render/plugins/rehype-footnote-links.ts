@@ -61,39 +61,33 @@ const rehypeFootnoteLinks: Plugin<[], Root> = () => {
     const footnoteSection: Element = {
       type: 'element',
       tagName: 'section',
-      properties: { className: ['footnote-links'] },
+      properties: { className: ['footnotes'], dataFootnotes: '' },
       children: [
         {
           type: 'element',
-          tagName: 'hr',
-          properties: { className: ['footnote-divider'] },
-          children: [],
-        },
-        {
-          type: 'element',
           tagName: 'h4',
-          properties: { className: ['footnote-title'] },
+          properties: {},
           children: [{ type: 'text', value: '参考链接' }],
         },
         {
           type: 'element',
           tagName: 'ol',
-          properties: { className: ['footnote-list'] },
+          properties: {},
           children: links.map(link => ({
             type: 'element',
             tagName: 'li',
-            properties: { className: ['footnote-item'] },
+            properties: { id: `user-content-fn-${link.id}` },
             children: [
               {
                 type: 'element',
                 tagName: 'span',
-                properties: { className: ['footnote-text'] },
+                properties: {},
                 children: [{ type: 'text', value: `${link.text}: ` }],
               },
               {
                 type: 'element',
                 tagName: 'a',
-                properties: { className: ['footnote-url'], href: link.href },
+                properties: { href: link.href },
                 children: [{ type: 'text', value: link.href }],
               },
             ],

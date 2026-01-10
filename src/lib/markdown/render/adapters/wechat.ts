@@ -224,6 +224,15 @@ const rehypeWechatFootnoteLinks: Plugin<[], Root> = () => (tree) => {
 
     const href = rawHref.trim()
 
+    // 移除 GFM 脚注返回链接（↩）
+    if (
+      node.properties?.dataFootnoteBackref !== undefined
+      || href.startsWith('#user-content-fnref-')
+    ) {
+      parent.children.splice(index, 1)
+      return index
+    }
+
     if (!href) {
       node.tagName = 'span'
       delete node.properties?.href
@@ -267,7 +276,7 @@ const rehypeWechatFootnoteLinks: Plugin<[], Root> = () => (tree) => {
   tree.children.push({
     type: 'element',
     tagName: 'section',
-    properties: { className: ['footnotes'] },
+    properties: { className: ['footnotes'], dataFootnotes: '' },
     children: [
       {
         type: 'element',
