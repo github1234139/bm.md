@@ -133,12 +133,18 @@ describe('markdown -> html render (general)', () => {
     expect(html).toMatch(/<span[^>]*>：将 Markdown 转换为 HTML<\/span>/)
   })
 
-  it('does not wrap text when element has only text content', async () => {
+  it('wraps text in pure text paragraph', async () => {
     const html = await render({ markdown: '纯文本段落' })
 
     expect(html).toContain('<p')
-    expect(html).toContain('纯文本段落')
-    expect(html).not.toMatch(/<p[^>]*><span/)
+    expect(html).toMatch(/<p[^>]*><span[^>]*>纯文本段落<\/span><\/p>/)
+  })
+
+  it('wraps text in pure text list item', async () => {
+    const html = await render({ markdown: '- 语法高亮与更好的代码评审体验' })
+
+    expect(html).toContain('<li')
+    expect(html).toMatch(/<li[^>]*><span[^>]*>语法高亮与更好的代码评审体验<\/span><\/li>/)
   })
 
   it('wraps text in list items with mixed content', async () => {
@@ -157,11 +163,12 @@ describe('markdown -> html render (general)', () => {
     expect(html).not.toMatch(/<em[^>]*><span/)
   })
 
-  it('does not wrap text when only br element is present', async () => {
+  it('wraps text even when br element is present', async () => {
     const html = await render({ markdown: '第一行  \n第二行' })
 
     expect(html).toContain('<br')
-    expect(html).not.toMatch(/<p[^>]*><span/)
+    expect(html).toMatch(/<span[^>]*>第一行<\/span>/)
+    expect(html).toMatch(/<span[^>]*>\s*第二行<\/span>/)
   })
 })
 
