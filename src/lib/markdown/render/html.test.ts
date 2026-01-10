@@ -124,6 +124,45 @@ describe('markdown -> html render (general)', () => {
     expect(html).toContain('class="markdown-alert')
     expect(html).not.toMatch(/<div[^>]*class="markdown-alert/)
   })
+
+  it('wraps text nodes with span when mixed with inline elements', async () => {
+    const html = await render({ markdown: '**Markdown 渲染**：将 Markdown 转换为 HTML' })
+
+    expect(html).toContain('<strong')
+    expect(html).toContain('Markdown 渲染')
+    expect(html).toMatch(/<span[^>]*>：将 Markdown 转换为 HTML<\/span>/)
+  })
+
+  it('does not wrap text when element has only text content', async () => {
+    const html = await render({ markdown: '纯文本段落' })
+
+    expect(html).toContain('<p')
+    expect(html).toContain('纯文本段落')
+    expect(html).not.toMatch(/<p[^>]*><span/)
+  })
+
+  it('wraps text in list items with mixed content', async () => {
+    const html = await render({ markdown: '- **功能**：这是说明文字' })
+
+    expect(html).toContain('<li')
+    expect(html).toContain('<strong')
+    expect(html).toMatch(/<span[^>]*>：这是说明文字<\/span>/)
+  })
+
+  it('does not wrap text inside nested inline elements', async () => {
+    const html = await render({ markdown: '*斜体**粗体**后续*' })
+
+    expect(html).toContain('<em')
+    expect(html).toContain('<strong')
+    expect(html).not.toMatch(/<em[^>]*><span/)
+  })
+
+  it('does not wrap text when only br element is present', async () => {
+    const html = await render({ markdown: '第一行  \n第二行' })
+
+    expect(html).toContain('<br')
+    expect(html).not.toMatch(/<p[^>]*><span/)
+  })
 })
 
 describe('platform-specific rendering', () => {

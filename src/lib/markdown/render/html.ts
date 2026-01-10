@@ -17,7 +17,7 @@ import { unified } from 'unified'
 import { getCodeThemeById } from '@/themes/code-theme'
 import { getMarkdownStyleById } from '@/themes/markdown-style'
 import { getAdapterPlugins } from './adapters'
-import { rehypeDivToSection, rehypeFigureWrapper, rehypeFootnoteLinks, remarkFrontmatterTable } from './plugins'
+import { rehypeDivToSection, rehypeFigureWrapper, rehypeFootnoteLinks, rehypeWrapTextNodes, remarkFrontmatterTable } from './plugins'
 
 export interface RenderOptions {
   markdown: string
@@ -97,6 +97,7 @@ function createProcessor({ enableFootnoteLinks, openLinksInNewWindow, platform =
   }
 
   processor.use(rehypeDivToSection)
+  processor.use(rehypeWrapTextNodes)
 
   processor.use(rehypeStringify, { allowDangerousHtml: true })
 
