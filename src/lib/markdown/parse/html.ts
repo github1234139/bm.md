@@ -13,6 +13,7 @@ const processor = unified()
   })
 
 export default async function parse(html: string) {
-  const processed = await processor.process(html)
+  const cleaned = html.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+  const processed = await processor.process(cleaned)
   return processed.toString()
 }

@@ -49,13 +49,15 @@ export const importViewTrackerExtension = ViewPlugin.fromClass(
 export async function importFiles(
   view: EditorView,
   files: File[],
-  insertPos?: number,
+  options: { insertPos?: number, replaceAll?: boolean } = {},
 ): Promise<void> {
   if (!files.length) {
     return
   }
 
-  let currentInsertPos = insertPos ?? view.state.selection.main.anchor
+  const { insertPos, replaceAll = false } = options
+  const selection = view.state.selection.main
+  let currentInsertPos = insertPos ?? selection.from
 
   for (const file of files) {
     if (file.type === 'text/html') {
@@ -63,9 +65,11 @@ export async function importFiles(
         const html = await file.text()
         const { markdown } = await import('@/lib/markdown/browser')
         const { result: md } = await markdown.parse({ html })
+        const from = replaceAll ? 0 : (insertPos ?? selection.from)
+        const to = replaceAll ? view.state.doc.length : (insertPos ?? selection.to)
         view.dispatch({
-          changes: { from: 0, to: view.state.doc.length, insert: md },
-          selection: { anchor: 0 },
+          changes: { from, to, insert: md },
+          selection: { anchor: from + md.length },
         })
         toast.success(`HTML 导入成功: ${file.name}`)
         break
@@ -80,9 +84,11 @@ export async function importFiles(
     if (file.type === 'text/markdown' || file.name.endsWith('.md')) {
       try {
         const md = await file.text()
+        const from = replaceAll ? 0 : (insertPos ?? selection.from)
+        const to = replaceAll ? view.state.doc.length : (insertPos ?? selection.to)
         view.dispatch({
-          changes: { from: 0, to: view.state.doc.length, insert: md },
-          selection: { anchor: 0 },
+          changes: { from, to, insert: md },
+          selection: { anchor: from + md.length },
         })
         toast.success(`Markdown 导入成功: ${file.name}`)
         break
@@ -128,17 +134,14 @@ export const importDropPasteExtension = EditorView.domEventHandlers({
     }
 
     event.preventDefault()
-    const insertPos = view.posAtCoords({ x: event.clientX, y: event.clientY })
-      ?? view.state.selection.main.anchor
-
-    void importFiles(view, files, insertPos)
+    void importFiles(view, files, { replaceAll: true })
   },
   paste(event, view) {
     const files = getFilesFromDataTransfer(event.clipboardData)
     if (files.length) {
       event.preventDefault()
       const insertPos = view.state.selection.main.anchor
-      void importFiles(view, files, insertPos)
+      void importFiles(view, files, { insertPos })
       return
     }
 
@@ -151,14 +154,14 @@ export const importDropPasteExtension = EditorView.domEventHandlers({
     }
 
     event.preventDefault()
-    const insertPos = view.state.selection.main.anchor
+    const selection = view.state.selection.main
     void (async () => {
       try {
         const { markdown } = await import('@/lib/markdown/browser')
         const { result: md } = await markdown.parse({ html })
         view.dispatch({
-          changes: { from: insertPos, insert: md },
-          selection: { anchor: insertPos + md.length },
+          changes: { from: selection.from, to: selection.to, insert: md },
+          selection: { anchor: selection.from + md.length },
         })
         toast.success('HTML 解析成功')
       }

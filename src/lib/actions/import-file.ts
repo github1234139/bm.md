@@ -58,5 +58,5 @@ export async function handleImportFiles() {
     toast.error('编辑器尚未就绪')
     return
   }
-  await importFiles(view, files)
+  await importFiles(view, files, { replaceAll: true })
 }
