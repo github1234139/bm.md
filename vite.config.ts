@@ -80,6 +80,7 @@ const config = defineConfig({
     VitePWA({
       strategies: 'injectManifest',
       srcDir: 'src',
+      outDir: isAliyunESA ? 'dist/client' : '.output/public',
       filename: 'sw.ts',
       registerType: 'autoUpdate',
       manifest: {
